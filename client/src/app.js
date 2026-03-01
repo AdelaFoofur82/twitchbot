@@ -3,6 +3,7 @@ import { createTestAlertsPanel } from './components/TestAlertsPanel.js';
 export function createLayerApp(options = {}) {
   const { createApp } = Vue;
   const {
+    rootComponent = null,
     credentialsGeneratorComponent = null,
     overlaysSectionComponent = null,
     chatConfigurationComponent = null,
@@ -12,7 +13,7 @@ export function createLayerApp(options = {}) {
     eventsOverviewComponent = null
   } = options;
 
-  const app = createApp({});
+  const app = createApp(rootComponent || {});
 
   app.component('test-alerts-panel', createTestAlertsPanel());
 

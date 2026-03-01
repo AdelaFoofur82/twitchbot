@@ -46,6 +46,7 @@ function hideAppLoading() {
 async function bootstrapMainApp() {
 	try {
 		const [
+			loadedIndexPage,
 			loadedCredentialsGenerator,
 			loadedOverlaysSection,
 			loadedChatConfiguration,
@@ -54,6 +55,7 @@ async function bootstrapMainApp() {
 			loadedBotActionsCard,
 			loadedEventsOverview
 		] = await Promise.all([
+			loadModule('./src/components/dashboard/Index.vue', sfcOptions),
 			loadModule('./src/components/dashboard/CredentialsGenerator.vue', sfcOptions),
 			loadModule('./src/components/dashboard/OverlaysSection.vue', sfcOptions),
 			loadModule('./src/components/overlays/chat/ChatConfiguration.vue', sfcOptions),
@@ -67,6 +69,7 @@ async function bootstrapMainApp() {
 			loadedCredentialsGenerator && loadedCredentialsGenerator.default
 				? loadedCredentialsGenerator.default
 				: loadedCredentialsGenerator;
+		const rootComponent = loadedIndexPage && loadedIndexPage.default ? loadedIndexPage.default : loadedIndexPage;
 		const overlaysSectionComponent =
 			loadedOverlaysSection && loadedOverlaysSection.default ? loadedOverlaysSection.default : loadedOverlaysSection;
 		const chatConfigurationComponent =
@@ -84,6 +87,7 @@ async function bootstrapMainApp() {
 			loadedEventsOverview && loadedEventsOverview.default ? loadedEventsOverview.default : loadedEventsOverview;
 
 		createLayerApp({
+			rootComponent,
 			credentialsGeneratorComponent,
 			overlaysSectionComponent,
 			chatConfigurationComponent,

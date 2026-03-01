@@ -51,10 +51,6 @@
         </div>
       </form>
 
-      <p class="small text-white mt-2 mb-0">
-        Usa el mismo token para API y bot; el prefijo <code>oauth:</code> se añade automáticamente en el login del bot.
-      </p>
-
       <p class="small text-info mt-2 mb-0" v-if="hasAuthInUrl">
         Se ha detectado <code>?auth=...</code> en la URL actual. No necesitas rellenar nada más para usar el overlay.
       </p>
