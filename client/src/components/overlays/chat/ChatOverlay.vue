@@ -87,6 +87,10 @@ export default {
     }));
 
     const getMessageOpacity = (event) => {
+      if (fadeStartMs <= 0) {
+        return 1;
+      }
+
       const createdAtMs = new Date(event.createdAt).getTime();
 
       if (!Number.isFinite(createdAtMs)) {
