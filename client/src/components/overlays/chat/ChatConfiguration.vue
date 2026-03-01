@@ -28,6 +28,11 @@
           <input v-model="chatOverlayConfig.fadeMs" class="form-control bg-dark text-white border-light-subtle" type="number" min="0" step="100" />
           <div class="form-text text-white-50">0 = sin desvanecimiento</div>
         </div>
+        <div class="col-12 col-md-6">
+          <label class="form-label">Canal</label>
+          <input v-model="chatOverlayConfig.channel" class="form-control bg-dark text-white border-light-subtle" type="text" placeholder="si vacío usa username" />
+          <div class="form-text text-white-50">Se pasa sin cifrar en la URL como <code>channel</code>.</div>
+        </div>
       </div>
 
       <div class="small mb-1"><strong>URL</strong></div>
@@ -44,8 +49,7 @@
 </template>
 
 <script>
-const { computed, ref } = Vue;
-const useOverlayAuth = window.__twitchbot_useOverlayAuth;
+const { computed, onMounted, ref, watch } = Vue;
 
 function normalizeAlign(value) {
   const align = String(value || '').trim().toLowerCase();
@@ -59,30 +63,59 @@ function parseInitialChatConfig() {
     maxLines: String(url.searchParams.get('chat_max') || '8').trim() || '8',
     fontSize: String(url.searchParams.get('chat_size') || '30').trim() || '30',
     align: normalizeAlign(url.searchParams.get('chat_align')),
-    fadeMs: String(url.searchParams.get('chat_fade_ms') || '0').trim() || '0'
+    fadeMs: String(url.searchParams.get('chat_fade_ms') || '0').trim() || '0',
+    channel: String(url.searchParams.get('channel') || '').trim()
   };
 }
 
 export default {
   name: 'ChatConfiguration',
   setup() {
+    const { inject } = Vue;
+    const globalServices = inject('globalServices', {});
+    const useOverlayAuth = globalServices.useOverlayAuth;
+
     const overlayAuth = useOverlayAuth();
 
     const chatOverlayConfig = ref(parseInitialChatConfig());
+    const usernameFromAuth = ref('');
     const copyOptions = ref({
       chatDebug: false
     });
+
+    async function applyDefaultChannelFromUsername() {
+      if (!overlayAuth.isReady.value) {
+        return;
+      }
+
+      try {
+        const username = await overlayAuth.getUsername();
+
+        if (!username) {
+          return;
+        }
+
+        usernameFromAuth.value = username;
+
+        if (!String(chatOverlayConfig.value.channel || '').trim()) {
+          chatOverlayConfig.value.channel = username;
+        }
+      } catch (error) {
+      }
+    }
 
     const chatQueryParams = computed(() => {
       const normalizedMaxLines = Number.parseInt(chatOverlayConfig.value.maxLines, 10);
       const normalizedFontSize = Number.parseInt(chatOverlayConfig.value.fontSize, 10);
       const normalizedFadeMs = Number.parseInt(chatOverlayConfig.value.fadeMs, 10);
+      const resolvedChannel = String(chatOverlayConfig.value.channel || '').trim() || String(usernameFromAuth.value || '').trim();
 
       return {
         chat_max: Number.isFinite(normalizedMaxLines) && normalizedMaxLines > 0 ? String(normalizedMaxLines) : '8',
         chat_size: Number.isFinite(normalizedFontSize) && normalizedFontSize > 0 ? String(normalizedFontSize) : '30',
         chat_align: normalizeAlign(chatOverlayConfig.value.align),
-        chat_fade_ms: Number.isFinite(normalizedFadeMs) && normalizedFadeMs >= 0 ? String(normalizedFadeMs) : '0'
+        chat_fade_ms: Number.isFinite(normalizedFadeMs) && normalizedFadeMs >= 0 ? String(normalizedFadeMs) : '0',
+        channel: resolvedChannel
       };
     });
 
@@ -112,6 +145,19 @@ export default {
         console.error('[dashboard] No se pudo copiar URL chat overlay', error);
       }
     }
+
+    onMounted(() => {
+      applyDefaultChannelFromUsername();
+    });
+
+    watch(
+      () => overlayAuth.isReady.value,
+      (isReady) => {
+        if (isReady) {
+          applyDefaultChannelFromUsername();
+        }
+      }
+    );
 
     return {
       chatOverlayConfig,

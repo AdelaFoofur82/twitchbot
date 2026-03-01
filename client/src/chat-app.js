@@ -1,10 +1,11 @@
 import {
   decryptCredentialsFromUrlPayload,
+  getChannelFromUrl,
   getAuthHashFromUrl
 } from './services/credentials.js';
 import { useTwitchBot } from './composables/useTwitchBot.js';
 
-export function createChatOverlayApp(chatOverlayComponent) {
+export function createChatOverlayApp(chatOverlayComponent, globalServices = {}) {
   const { createApp } = Vue;
   const debugParam = String(new URL(window.location.href).searchParams.get('debug') || '').trim().toLowerCase();
   const isDebugEnabled = ['1', 'true', 'yes', 'on'].includes(debugParam);
@@ -40,6 +41,19 @@ export function createChatOverlayApp(chatOverlayComponent) {
           const credentials = await decryptCredentialsFromUrlPayload({ authHash });
           debugLog('[chat-overlay] credenciales descifradas desde ?auth');
 
+          const channelFromUrl = String(getChannelFromUrl() || '').trim();
+          const fallbackChannel = String(credentials?.bot?.username || '').trim();
+          credentials.bot.channel = channelFromUrl || fallbackChannel;
+
+          if (!credentials.bot.channel) {
+            throw new Error('Falta parámetro channel en URL y no hay username para fallback');
+          }
+
+          debugLog('[chat-overlay] canal resuelto para conexión', {
+            channel: credentials.bot.channel,
+            fromUrl: Boolean(channelFromUrl)
+          });
+
           await connect(credentials);
           debugLog('[chat-overlay] conexión bot solicitada correctamente');
         } catch (error) {
@@ -58,6 +72,11 @@ export function createChatOverlayApp(chatOverlayComponent) {
 
   const normalizedComponent =
     chatOverlayComponent && chatOverlayComponent.default ? chatOverlayComponent.default : chatOverlayComponent;
+
+  app.provide('globalServices', {
+    useTwitchBot,
+    ...globalServices
+  });
 
   app.component('chat-overlay', normalizedComponent);
   app.mount('#app');

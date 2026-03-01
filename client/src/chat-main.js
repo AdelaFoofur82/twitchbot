@@ -24,9 +24,6 @@ const sfcOptions = {
 		document.head.appendChild(style);
 	}
 };
-
-window.__twitchbot_useTwitchBot = useTwitchBot;
-
 async function bootstrapChatOverlay() {
 	try {
 		const loadedModule = await loadModule('./src/components/overlays/chat/ChatOverlay.vue', sfcOptions);
@@ -39,7 +36,7 @@ async function bootstrapChatOverlay() {
 			});
 		}
 
-		createChatOverlayApp(chatOverlayComponent);
+		createChatOverlayApp(chatOverlayComponent, { useTwitchBot });
 	} catch (error) {
 		console.error('[chat-main] Error cargando ChatOverlay.vue', error);
 	}

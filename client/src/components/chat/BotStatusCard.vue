@@ -19,12 +19,12 @@
 </template>
 
 <script>
-const useTwitchBot = window.__twitchbot_useTwitchBot;
-
 export default {
   name: 'BotStatusCard',
   setup() {
-    const { computed } = Vue;
+    const { computed, inject } = Vue;
+    const globalServices = inject('globalServices', {});
+    const useTwitchBot = globalServices.useTwitchBot;
     const { state } = useTwitchBot();
 
     const statusClass = computed(() => {

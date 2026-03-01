@@ -26,6 +26,20 @@
   <script src="https://unpkg.com/vue3-sfc-loader/dist/vue3-sfc-loader.js"></script>
   <script>
     (function () {
+      var hashText = String(window.location.hash || '');
+      var isOauthHash = hashText.includes('access_token=') || hashText.includes('error=');
+
+      if (!isOauthHash) {
+        return;
+      }
+
+      var authUrl = new URL('auth.html', window.location.href);
+      authUrl.hash = hashText;
+      window.location.replace(authUrl.toString());
+    })();
+  </script>
+  <script>
+    (function () {
       var debugParam = String(new URL(window.location.href).searchParams.get('debug') || '').trim().toLowerCase();
       var debugPanelEnabled = ['1', 'true', 'yes', 'on'].includes(debugParam);
       var panel = null;
@@ -87,20 +101,20 @@
         }
       };
 
-      window.__twitchbotDebugEnabled = true;
-      window.__twitchbotLog = function (label, payload) {
+      window.twitchbotDebugEnabled = true;
+      window.twitchbotLog = function (label, payload) {
         console.log('[twitchbot][debug]', label, payload);
         appendLine(label, payload);
       };
 
-      window.__twitchbotLog('index:debug-enabled', {
+      window.twitchbotLog('index:debug-enabled', {
         href: window.location.href,
         userAgent: navigator.userAgent,
         panelEnabled: debugPanelEnabled
       });
 
       window.addEventListener('error', function (event) {
-        window.__twitchbotLog('window:error', {
+        window.twitchbotLog('window:error', {
           message: event.message,
           source: event.filename,
           line: event.lineno,
@@ -111,7 +125,7 @@
 
       window.addEventListener('unhandledrejection', function (event) {
         var reason = event.reason;
-        window.__twitchbotLog('window:unhandledrejection', reason);
+        window.twitchbotLog('window:unhandledrejection', reason);
       });
     })();
   </script>

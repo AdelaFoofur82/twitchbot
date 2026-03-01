@@ -4,6 +4,7 @@ export function createLayerApp(options = {}) {
   const { createApp } = Vue;
   const {
     rootComponent = null,
+    globalServices = {},
     credentialsGeneratorComponent = null,
     overlaysSectionComponent = null,
     chatConfigurationComponent = null,
@@ -14,6 +15,8 @@ export function createLayerApp(options = {}) {
   } = options;
 
   const app = createApp(rootComponent || {});
+
+  app.provide('globalServices', globalServices);
 
   app.component('test-alerts-panel', createTestAlertsPanel());
 

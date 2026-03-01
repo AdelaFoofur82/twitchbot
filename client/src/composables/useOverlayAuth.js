@@ -1,16 +1,22 @@
-import { buildOverlayUrlWithCredentials, getAuthHashFromUrl } from '../services/credentials.js';
+import {
+  buildOverlayUrlWithCredentials,
+  decryptCredentialsFromUrlPayload,
+  getAuthHashFromUrl
+} from '../services/credentials.js';
 
 const { computed, ref } = Vue;
 
 const authHash = ref('');
 const encodedPayload = ref('');
 const hasAuthInUrl = ref(false);
+const cachedCredentials = ref(null);
 let initialized = false;
 
 function clearAuth() {
   authHash.value = '';
   encodedPayload.value = '';
   hasAuthInUrl.value = false;
+  cachedCredentials.value = null;
 }
 
 function withDebugParam(urlText, includeDebug) {
@@ -41,6 +47,7 @@ function setAuthPayload({ nextAuthHash, nextEncodedPayload, updateBrowserUrl = f
   authHash.value = normalizedHash;
   encodedPayload.value = normalizedPayload;
   hasAuthInUrl.value = true;
+  cachedCredentials.value = null;
 
   if (updateBrowserUrl) {
     const dashboardUrl = buildOverlayUrlWithCredentials({
@@ -91,6 +98,28 @@ function buildUrl({ pagePath = '', queryParams = {} } = {}) {
   });
 }
 
+async function getCredentials({ forceRefresh = false } = {}) {
+  initializeAuthFromUrl();
+
+  if (!authHash.value || !encodedPayload.value) {
+    return null;
+  }
+
+  if (!forceRefresh && cachedCredentials.value) {
+    return cachedCredentials.value;
+  }
+
+  const credentials = await decryptCredentialsFromUrlPayload({ authHash: authHash.value });
+  cachedCredentials.value = credentials;
+
+  return credentials;
+}
+
+async function getUsername({ forceRefresh = false } = {}) {
+  const credentials = await getCredentials({ forceRefresh });
+  return String(credentials?.bot?.username || '').trim();
+}
+
 export function useOverlayAuth() {
   initializeAuthFromUrl();
 
@@ -102,6 +131,8 @@ export function useOverlayAuth() {
     setAuthPayload,
     clearAuth,
     buildUrl,
+    getCredentials,
+    getUsername,
     withDebugParam,
     initializeAuthFromUrl
   };

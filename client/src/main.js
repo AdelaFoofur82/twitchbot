@@ -4,11 +4,12 @@ import { useOverlayAuth } from './composables/useOverlayAuth.js';
 import {
 	buildUrlCredentialsPayload,
 	decryptCredentialsFromUrlPayload,
+	getChannelFromUrl,
 	getAuthHashFromUrl
 } from './services/credentials.js';
 
 const { loadModule } = window['vue3-sfc-loader'];
-const bootLog = typeof window.__twitchbotLog === 'function' ? window.__twitchbotLog : () => {};
+const bootLog = typeof window.twitchbotLog === 'function' ? window.twitchbotLog : () => {};
 
 const sfcOptions = {
 	moduleCache: {
@@ -34,11 +35,15 @@ const sfcOptions = {
 	}
 };
 
-window.__twitchbot_useTwitchBot = useTwitchBot;
-window.__twitchbot_useOverlayAuth = useOverlayAuth;
-window.__twitchbot_buildUrlCredentialsPayload = buildUrlCredentialsPayload;
-window.__twitchbot_decryptCredentialsFromUrlPayload = decryptCredentialsFromUrlPayload;
-window.__twitchbot_getAuthHashFromUrl = getAuthHashFromUrl;
+const globalServices = {
+	useTwitchBot,
+	useOverlayAuth,
+	buildUrlCredentialsPayload,
+	decryptCredentialsFromUrlPayload,
+	getChannelFromUrl,
+	getAuthHashFromUrl,
+	bootLog
+};
 bootLog('main:globals-ready');
 
 function hideAppLoading() {
@@ -114,6 +119,7 @@ async function bootstrapMainApp() {
 
 		createLayerApp({
 			rootComponent,
+			globalServices,
 			credentialsGeneratorComponent,
 			overlaysSectionComponent,
 			chatConfigurationComponent,

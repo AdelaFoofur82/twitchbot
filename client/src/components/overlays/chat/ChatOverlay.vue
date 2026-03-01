@@ -26,8 +26,6 @@
 </template>
 
 <script>
-const useTwitchBot = window.__twitchbot_useTwitchBot;
-
 const url = new URL(window.location.href);
 const maxLinesParam = Number.parseInt(String(url.searchParams.get('chat_max') || '').trim(), 10);
 const fontSizeParam = Number.parseInt(String(url.searchParams.get('chat_size') || '').trim(), 10);
@@ -56,7 +54,9 @@ export default {
     }
   },
   setup() {
-    const { computed, onBeforeUnmount, onMounted, ref, watch } = Vue;
+    const { computed, inject, onBeforeUnmount, onMounted, ref, watch } = Vue;
+    const globalServices = inject('globalServices', {});
+    const useTwitchBot = globalServices.useTwitchBot;
     const { state } = useTwitchBot();
     const nowMs = ref(Date.now());
     let fadeTimerId = null;

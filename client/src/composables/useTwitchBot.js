@@ -226,11 +226,10 @@ function stopFollowersPolling() {
 function validateCredentials(credentials) {
   const hasChatCredentials =
     credentials?.bot?.username &&
-    credentials?.bot?.oauthToken &&
-    credentials?.bot?.channel;
+    credentials?.bot?.oauthToken;
 
   if (!hasChatCredentials) {
-    throw new Error('Credenciales inválidas: revisa bot.username, bot.oauthToken y bot.channel');
+    throw new Error('Credenciales inválidas: revisa bot.username y bot.oauthToken');
   }
 }
 
@@ -406,9 +405,17 @@ async function sendAnnouncement(credentials, rawCommand) {
 export function useTwitchBot() {
   const connect = async (credentials) => {
     validateCredentials(credentials);
+    const resolvedChannel = String(credentials?.bot?.channel || credentials?.bot?.username || '').trim();
+
+    if (!resolvedChannel) {
+      throw new Error('No se pudo resolver el canal de conexión');
+    }
+
+    credentials.bot.channel = resolvedChannel;
+
     logDebug('connect', 'Iniciando conexión', {
       username: credentials?.bot?.username,
-      channel: credentials?.bot?.channel,
+      channel: resolvedChannel,
       hasOauthToken: Boolean(credentials?.bot?.oauthToken),
       hasApiClientId: Boolean(credentials?.api?.clientId)
     });

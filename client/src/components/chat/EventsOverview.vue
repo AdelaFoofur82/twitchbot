@@ -51,11 +51,12 @@
 </template>
 
 <script>
-const useTwitchBot = window.__twitchbot_useTwitchBot;
-
 export default {
   name: 'EventsOverview',
   setup() {
+    const { inject } = Vue;
+    const globalServices = inject('globalServices', {});
+    const useTwitchBot = globalServices.useTwitchBot;
     const { state } = useTwitchBot();
 
     return {

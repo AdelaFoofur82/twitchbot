@@ -42,12 +42,12 @@
 </template>
 
 <script>
-const useTwitchBot = window.__twitchbot_useTwitchBot;
-
 export default {
   name: 'ChatDashboard',
   setup() {
-    const { computed, nextTick, ref } = Vue;
+    const { computed, inject, nextTick, ref } = Vue;
+    const globalServices = inject('globalServices', {});
+    const useTwitchBot = globalServices.useTwitchBot;
     const { state: botState, sendMessage } = useTwitchBot();
 
     const chatInput = ref('');

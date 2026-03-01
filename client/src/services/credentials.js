@@ -110,6 +110,12 @@ export function getEncryptedPayloadFromUrl() {
   return authParam;
 }
 
+export function getChannelFromUrl() {
+  const url = new URL(window.location.href);
+  const channelParam = String(url.searchParams.get('channel') || '').trim();
+  return channelParam;
+}
+
 export async function decryptCredentialsFromFile({ fileUrl, authHash }) {
   const response = await fetch(fileUrl, { cache: 'no-store' });
 
@@ -186,11 +192,10 @@ export async function decryptCredentialsFromCandidateFiles({ fileUrls, authHash 
   throw new Error(`No se pudo leer/descifrar credenciales. Intentos: ${errors.join(' | ')}`);
 }
 
-export async function buildUrlCredentialsPayload({ username, accessToken, clientId, channel }) {
+export async function buildUrlCredentialsPayload({ username, accessToken, clientId }) {
   const normalizedUsername = String(username || '').trim();
   const normalizedToken = normalizeBearerToken(accessToken);
   const normalizedClientId = String(clientId || '').trim();
-  const normalizedChannel = String(channel || normalizedUsername).trim();
 
   if (!normalizedUsername) {
     throw new Error('Falta username');
@@ -204,15 +209,10 @@ export async function buildUrlCredentialsPayload({ username, accessToken, client
     throw new Error('Falta clientId');
   }
 
-  if (!normalizedChannel) {
-    throw new Error('Falta channel');
-  }
-
   const credentials = {
     bot: {
       username: normalizedUsername,
-      oauthToken: normalizeOAuthToken(normalizedToken),
-      channel: normalizedChannel
+      oauthToken: normalizeOAuthToken(normalizedToken)
     },
     api: {
       accessToken: normalizedToken,
