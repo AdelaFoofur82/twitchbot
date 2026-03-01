@@ -38,7 +38,7 @@
       <div class="small mb-1"><strong>URL</strong></div>
       <textarea class="form-control bg-dark text-white border-light-subtle mb-2" rows="3" readonly :value="displayChatOverlayUrl"></textarea>
       <div class="d-flex align-items-center gap-3 flex-wrap">
-        <button class="btn btn-outline-info btn-sm" @click="copyChatOverlayUrl" :disabled="!chatOverlayUrl">Copiar URL chat overlay</button>
+        <button class="btn btn-outline-primary btn-sm" @click="copyChatOverlayUrl" :disabled="!chatOverlayUrl">Copiar URL chat overlay</button>
         <div class="form-check mb-0">
           <input v-model="copyOptions.chatDebug" class="form-check-input" type="checkbox" id="copyChatDebug" />
           <label class="form-check-label" for="copyChatDebug">Versión debug</label>

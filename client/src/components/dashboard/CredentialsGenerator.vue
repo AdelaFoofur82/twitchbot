@@ -38,7 +38,7 @@
           />
         </div>
         <div class="col-12 col-md-1 d-grid">
-          <button class="btn btn-primary" type="submit">Generar</button>
+          <button class="btn btn-success" type="submit">Generar</button>
         </div>
       </form>
 
@@ -47,7 +47,7 @@
       </p>
 
       <div class="d-flex gap-2 mt-3 flex-wrap">
-        <button class="btn btn-outline-info btn-sm" type="button" @click="startTwitchLogin">
+        <button class="btn btn-outline-primary btn-sm" type="button" @click="startTwitchLogin">
           Login con Twitch
         </button>
         <div class="small text-white-50 d-flex align-items-center flex-wrap gap-1">

@@ -3,7 +3,7 @@
     <header class="mb-4 text-white d-flex justify-content-between align-items-center gap-2 flex-wrap">
       <h1 class="h3 mb-1">Twitch BOT</h1>
       <div class="d-flex gap-2 flex-wrap">
-        <button class="btn btn-outline-info btn-sm" type="button" @click="handleCopyCurrentUrl">Copiar URL actual</button>
+        <button class="btn btn-outline-primary btn-sm" type="button" @click="handleCopyCurrentUrl">Copiar URL actual</button>
         <a
           class="btn btn-outline-secondary btn-sm"
           href="https://github.com/AdelaFoofur82/twitchbot"

@@ -99,7 +99,7 @@ export function createTestAlertsPanel() {
             <h2 class="h5 mb-0">Mini alertas de prueba</h2>
             <div class="d-flex flex-wrap gap-2">
               <button class="btn btn-sm btn-outline-warning" @click="runTest('bits')">Test Bits</button>
-              <button class="btn btn-sm btn-outline-info" @click="runTest('followers')">Test Follow</button>
+              <button class="btn btn-sm btn-outline-primary" @click="runTest('followers')">Test Follow</button>
               <button class="btn btn-sm btn-outline-success" @click="runTest('subscriptions')">Test Sub</button>
             </div>
           </div>
