@@ -21,7 +21,7 @@
       </form>
 
       <p class="small text-white mb-3">
-        Anuncios: <code>/announce mensaje</code>, <code>/announce -green mensaje</code>.
+        Anuncios: <code>/announce mensaje</code>, <code>/announce -[green|orange|blue|purple] mensaje</code>.
       </p>
 
       <div class="small text-white mb-2">Mensajes recientes</div>

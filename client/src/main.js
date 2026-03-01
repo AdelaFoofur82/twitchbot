@@ -8,17 +8,22 @@ import {
 } from './services/credentials.js';
 
 const { loadModule } = window['vue3-sfc-loader'];
+const bootLog = typeof window.__twitchbotLog === 'function' ? window.__twitchbotLog : () => {};
 
 const sfcOptions = {
 	moduleCache: {
 		vue: Vue
 	},
 	async getFile(url) {
+		bootLog('main:getFile:start', { url });
 		const response = await fetch(url, { cache: 'no-store' });
 
 		if (!response.ok) {
+			bootLog('main:getFile:error', { url, status: response.status });
 			throw new Error(`[main] No se pudo cargar SFC: ${url}`);
 		}
+
+		bootLog('main:getFile:ok', { url, status: response.status });
 
 		return response.text();
 	},
@@ -34,6 +39,7 @@ window.__twitchbot_useOverlayAuth = useOverlayAuth;
 window.__twitchbot_buildUrlCredentialsPayload = buildUrlCredentialsPayload;
 window.__twitchbot_decryptCredentialsFromUrlPayload = decryptCredentialsFromUrlPayload;
 window.__twitchbot_getAuthHashFromUrl = getAuthHashFromUrl;
+bootLog('main:globals-ready');
 
 function hideAppLoading() {
 	const loadingNode = document.getElementById('app-loading');
@@ -43,7 +49,25 @@ function hideAppLoading() {
 	}
 }
 
+function loadSfcWithLog(path) {
+	bootLog('main:loadModule:start', { path });
+
+	return loadModule(path, sfcOptions)
+		.then((moduleValue) => {
+			bootLog('main:loadModule:ok', { path });
+			return moduleValue;
+		})
+		.catch((error) => {
+			bootLog('main:loadModule:error', {
+				path,
+				error: error instanceof Error ? error.message : String(error)
+			});
+			throw error;
+		});
+}
+
 async function bootstrapMainApp() {
+	bootLog('main:bootstrap:start');
 	try {
 		const [
 			loadedIndexPage,
@@ -55,15 +79,17 @@ async function bootstrapMainApp() {
 			loadedBotActionsCard,
 			loadedEventsOverview
 		] = await Promise.all([
-			loadModule('./src/components/dashboard/Index.vue', sfcOptions),
-			loadModule('./src/components/dashboard/CredentialsGenerator.vue', sfcOptions),
-			loadModule('./src/components/dashboard/OverlaysSection.vue', sfcOptions),
-			loadModule('./src/components/overlays/chat/ChatConfiguration.vue', sfcOptions),
-			loadModule('./src/components/chat/ChatDashboard.vue', sfcOptions),
-			loadModule('./src/components/chat/BotStatusCard.vue', sfcOptions),
-			loadModule('./src/components/chat/BotActionsCard.vue', sfcOptions),
-			loadModule('./src/components/chat/EventsOverview.vue', sfcOptions)
+			loadSfcWithLog('./src/components/dashboard/Index.vue'),
+			loadSfcWithLog('./src/components/dashboard/CredentialsGenerator.vue'),
+			loadSfcWithLog('./src/components/dashboard/OverlaysSection.vue'),
+			loadSfcWithLog('./src/components/overlays/chat/ChatConfiguration.vue'),
+			loadSfcWithLog('./src/components/chat/ChatDashboard.vue'),
+			loadSfcWithLog('./src/components/chat/BotStatusCard.vue'),
+			loadSfcWithLog('./src/components/chat/BotActionsCard.vue'),
+			loadSfcWithLog('./src/components/chat/EventsOverview.vue')
 		]);
+
+		bootLog('main:loadModule:all-ok');
 
 		const credentialsGeneratorComponent =
 			loadedCredentialsGenerator && loadedCredentialsGenerator.default
@@ -96,9 +122,12 @@ async function bootstrapMainApp() {
 			botActionsCardComponent,
 			eventsOverviewComponent
 		});
+		bootLog('main:createLayerApp:ok');
 		hideAppLoading();
+		bootLog('main:bootstrap:done');
 	} catch (error) {
 		console.error('[main] Error cargando componentes SFC', error);
+		bootLog('main:bootstrap:error', error);
 		createLayerApp();
 		hideAppLoading();
 	}

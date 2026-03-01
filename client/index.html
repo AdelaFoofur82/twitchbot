@@ -24,6 +24,97 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
   <script src="https://unpkg.com/vue3-sfc-loader/dist/vue3-sfc-loader.js"></script>
+  <script>
+    (function () {
+      var debugParam = String(new URL(window.location.href).searchParams.get('debug') || '').trim().toLowerCase();
+      var debugPanelEnabled = ['1', 'true', 'yes', 'on'].includes(debugParam);
+      var panel = null;
+      var list = null;
+
+      if (debugPanelEnabled) {
+        panel = document.createElement('section');
+        panel.id = 'debug-bootstrap-log';
+        panel.style.position = 'fixed';
+        panel.style.right = '8px';
+        panel.style.bottom = '8px';
+        panel.style.zIndex = '10000';
+        panel.style.width = 'min(92vw, 760px)';
+        panel.style.maxHeight = '45vh';
+        panel.style.overflow = 'auto';
+        panel.style.padding = '8px 10px';
+        panel.style.border = '1px solid rgba(255,255,255,0.25)';
+        panel.style.borderRadius = '8px';
+        panel.style.background = 'rgba(0, 0, 0, 0.85)';
+        panel.style.color = '#e9ecef';
+        panel.style.fontFamily = 'monospace';
+        panel.style.fontSize = '12px';
+        panel.style.lineHeight = '1.35';
+
+        var title = document.createElement('div');
+        title.style.fontWeight = '700';
+        title.style.marginBottom = '4px';
+        title.textContent = 'DEBUG BOOTSTRAP';
+        panel.appendChild(title);
+
+        list = document.createElement('div');
+        panel.appendChild(list);
+        document.body.appendChild(panel);
+      }
+
+      var appendLine = function (label, payload) {
+        var line = document.createElement('div');
+        var ts = new Date().toISOString();
+        var suffix = '';
+
+        if (payload !== undefined && payload !== null) {
+          if (payload instanceof Error) {
+            suffix = ' ' + (payload.stack || payload.message || String(payload));
+          } else if (typeof payload === 'object') {
+            try {
+              suffix = ' ' + JSON.stringify(payload);
+            } catch (error) {
+              suffix = ' ' + String(payload);
+            }
+          } else {
+            suffix = ' ' + String(payload);
+          }
+        }
+
+        line.textContent = '[' + ts + '] ' + label + suffix;
+        if (list && panel) {
+          list.appendChild(line);
+          panel.scrollTop = panel.scrollHeight;
+        }
+      };
+
+      window.__twitchbotDebugEnabled = true;
+      window.__twitchbotLog = function (label, payload) {
+        console.log('[twitchbot][debug]', label, payload);
+        appendLine(label, payload);
+      };
+
+      window.__twitchbotLog('index:debug-enabled', {
+        href: window.location.href,
+        userAgent: navigator.userAgent,
+        panelEnabled: debugPanelEnabled
+      });
+
+      window.addEventListener('error', function (event) {
+        window.__twitchbotLog('window:error', {
+          message: event.message,
+          source: event.filename,
+          line: event.lineno,
+          column: event.colno,
+          stack: event.error && event.error.stack ? event.error.stack : ''
+        });
+      });
+
+      window.addEventListener('unhandledrejection', function (event) {
+        var reason = event.reason;
+        window.__twitchbotLog('window:unhandledrejection', reason);
+      });
+    })();
+  </script>
   <script type="module" src="./src/main.js"></script>
 </body>
 

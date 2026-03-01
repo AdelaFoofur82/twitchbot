@@ -323,25 +323,18 @@ function parseAnnounceCommand(message) {
   const text = String(message || '').trim();
   const compact = text.replace(/\s+/g, ' ');
 
-  const explicit = compact.match(/^\/announce(?:\s+-?(blue|green|orange|purple|primary))?\s+(.+)$/i);
+  const explicit = compact.match(/^\/announce(?:\s+-(blue|green|orange|purple))?\s+(.+)$/i);
   if (explicit) {
     return {
-      color: (explicit[1] || 'primary').toLowerCase(),
+      color: explicit[1] ? explicit[1].toLowerCase() : null,
       message: explicit[2].trim()
     };
   }
 
   const compactColor = compact.match(/^\/announce(blue|green|orange|purple)\s+(.+)$/i);
   if (compactColor) {
-    const map = {
-      blue: 'primary',
-      green: 'green',
-      orange: 'orange',
-      purple: 'purple'
-    };
-
     return {
-      color: map[compactColor[1].toLowerCase()] || 'primary',
+      color: compactColor[1].toLowerCase(),
       message: compactColor[2].trim()
     };
   }
@@ -372,6 +365,14 @@ async function sendAnnouncement(credentials, rawCommand) {
   url.searchParams.set('broadcaster_id', broadcasterId);
   url.searchParams.set('moderator_id', moderatorId);
 
+  const requestBody = {
+    message: parsed.message
+  };
+
+  if (parsed.color) {
+    requestBody.color = parsed.color;
+  }
+
   const response = await fetchWithTimeout(
     url.toString(),
     {
@@ -381,10 +382,7 @@ async function sendAnnouncement(credentials, rawCommand) {
         'Client-Id': credentials.api.clientId,
         Authorization: `Bearer ${token}`
       },
-      body: JSON.stringify({
-        message: parsed.message,
-        color: parsed.color
-      })
+      body: JSON.stringify(requestBody)
     },
     10000
   );
@@ -398,7 +396,7 @@ async function sendAnnouncement(credentials, rawCommand) {
     'chat',
     createEvent(credentials?.bot?.username || 'bot', {
       channel: state.channel,
-      message: `[ANNOUNCE:${parsed.color}] ${parsed.message}`,
+      message: `[ANNOUNCE:${parsed.color || 'default'}] ${parsed.message}`,
       color: '#a970ff',
       isSelf: true
     })
@@ -601,20 +599,13 @@ export function useTwitchBot() {
 
     const lower = normalizedMessage.toLowerCase();
     if (lower.startsWith('/announce')) {
+      logDebug('chat', 'Enviando /announce por API', { message: normalizedMessage });
+
       try {
-        logDebug('chat', 'Enviando /announce por API', { message: normalizedMessage });
         await sendAnnouncement(activeCredentials, normalizedMessage);
-      } catch (apiError) {
-        logDebug('chat', 'Fallback /announce por IRC', {
-          apiError: apiError instanceof Error ? apiError.message : String(apiError)
-        });
-        try {
-          await tmiClient.say(state.channel, normalizedMessage);
-        } catch (ircError) {
-          const apiMessage = apiError instanceof Error ? apiError.message : 'error API desconocido';
-          const ircMessage = ircError instanceof Error ? ircError.message : 'error IRC desconocido';
-          throw new Error(`Falló /announce en API (${apiMessage}) y en IRC (${ircMessage})`);
-        }
+      } catch (error) {
+        const detail = error instanceof Error ? error.message : String(error);
+        throw new Error(`No se pudo enviar /announce por API: ${detail}. Revisa scope del token (moderator:manage:announcements) y permisos de moderador en el canal.`);
       }
 
       return;
