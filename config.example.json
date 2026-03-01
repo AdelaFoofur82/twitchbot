@@ -1,0 +1,16 @@
+{
+  "twitch": {
+    "bot": {
+      "username": "example_bot_username",
+      "oauthToken": "oauth:example_oauth_token",
+      "channel": "example_channel"
+    },
+    "api": {
+      "clientId": "example_client_id",
+      "clientSecret": "example_client_secret",
+      "accessToken": "example_access_token",
+      "refreshToken": "example_refresh_token",
+      "broadcasterId": "example_broadcaster_id"
+    }
+  }
+}
