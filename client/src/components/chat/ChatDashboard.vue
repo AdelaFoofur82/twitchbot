@@ -55,7 +55,7 @@ export default {
     const chatInputRef = ref(null);
 
     const recentChatMessages = computed(() => {
-      return Array.isArray(botState.events.chat) ? botState.events.chat.slice(0, 10) : [];
+      return (Array.isArray(botState.events.chat) ? botState.events.chat.slice(0, 10) : []).reverse();
     });
 
     const submitChatMessage = async () => {
