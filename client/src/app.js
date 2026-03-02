@@ -8,10 +8,8 @@ export function createLayerApp(options = {}) {
     credentialsGeneratorComponent = null,
     overlaysSectionComponent = null,
     chatConfigurationComponent = null,
-    chatDashboardComponent = null,
-    botStatusCardComponent = null,
-    botActionsCardComponent = null,
-    eventsOverviewComponent = null
+    chatIndexComponent = null,
+    floatingCopyUrlButtonComponent = null
   } = options;
 
   const app = createApp(rootComponent || {});
@@ -32,20 +30,12 @@ export function createLayerApp(options = {}) {
     app.component('chat-configuration', chatConfigurationComponent);
   }
 
-  if (chatDashboardComponent) {
-    app.component('chat-dashboard', chatDashboardComponent);
+  if (chatIndexComponent) {
+    app.component('chat-index', chatIndexComponent);
   }
 
-  if (botStatusCardComponent) {
-    app.component('bot-status-card', botStatusCardComponent);
-  }
-
-  if (botActionsCardComponent) {
-    app.component('bot-actions-card', botActionsCardComponent);
-  }
-
-  if (eventsOverviewComponent) {
-    app.component('events-overview', eventsOverviewComponent);
+  if (floatingCopyUrlButtonComponent) {
+    app.component('floating-copy-url-button', floatingCopyUrlButtonComponent);
   }
 
   app.mount('#app');

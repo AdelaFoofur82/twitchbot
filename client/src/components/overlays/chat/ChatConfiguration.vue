@@ -68,16 +68,30 @@ function parseInitialChatConfig() {
   };
 }
 
+function buildInitialChatConfig(getConfig) {
+  const legacyConfig = parseInitialChatConfig();
+
+  return {
+    maxLines: String(getConfig('chat.overlay.maxLines', legacyConfig.maxLines) || '8').trim() || '8',
+    fontSize: String(getConfig('chat.overlay.fontSize', legacyConfig.fontSize) || '30').trim() || '30',
+    align: normalizeAlign(getConfig('chat.overlay.align', legacyConfig.align)),
+    fadeMs: String(getConfig('chat.overlay.fadeMs', legacyConfig.fadeMs) || '0').trim() || '0',
+    channel: String(getConfig('chat.overlay.channel', legacyConfig.channel) || '').trim()
+  };
+}
+
 export default {
   name: 'ChatConfiguration',
   setup() {
     const { inject } = Vue;
     const globalServices = inject('globalServices', {});
     const useOverlayAuth = globalServices.useOverlayAuth;
+    const useConfig = globalServices.useConfig;
 
     const overlayAuth = useOverlayAuth();
+    const config = useConfig();
 
-    const chatOverlayConfig = ref(parseInitialChatConfig());
+    const chatOverlayConfig = ref(buildInitialChatConfig(config.getConfig));
     const usernameFromAuth = ref('');
     const copyOptions = ref({
       chatDebug: false
@@ -149,6 +163,18 @@ export default {
     onMounted(() => {
       applyDefaultChannelFromUsername();
     });
+
+    watch(
+      chatOverlayConfig,
+      (nextConfig) => {
+        config.setConfig('chat.overlay.maxLines', String(nextConfig.maxLines || '').trim() || '8');
+        config.setConfig('chat.overlay.fontSize', String(nextConfig.fontSize || '').trim() || '30');
+        config.setConfig('chat.overlay.align', normalizeAlign(nextConfig.align));
+        config.setConfig('chat.overlay.fadeMs', String(nextConfig.fadeMs || '').trim() || '0');
+        config.setConfig('chat.overlay.channel', String(nextConfig.channel || '').trim());
+      },
+      { deep: true, immediate: true }
+    );
 
     watch(
       () => overlayAuth.isReady.value,

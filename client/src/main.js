@@ -1,6 +1,7 @@
 import { createLayerApp } from './app.js';
 import { useTwitchBot } from './composables/useTwitchBot.js';
 import { useOverlayAuth } from './composables/useOverlayAuth.js';
+import { useConfig } from './composables/useConfig.js';
 import {
 	buildUrlCredentialsPayload,
 	decryptCredentialsFromUrlPayload,
@@ -38,6 +39,7 @@ const sfcOptions = {
 const globalServices = {
 	useTwitchBot,
 	useOverlayAuth,
+	useConfig,
 	buildUrlCredentialsPayload,
 	decryptCredentialsFromUrlPayload,
 	getChannelFromUrl,
@@ -79,19 +81,15 @@ async function bootstrapMainApp() {
 			loadedCredentialsGenerator,
 			loadedOverlaysSection,
 			loadedChatConfiguration,
-			loadedChatDashboard,
-			loadedBotStatusCard,
-			loadedBotActionsCard,
-			loadedEventsOverview
+			loadedChatIndex,
+			loadedFloatingCopyUrlButton
 		] = await Promise.all([
 			loadSfcWithLog('./src/components/dashboard/Index.vue'),
 			loadSfcWithLog('./src/components/dashboard/CredentialsGenerator.vue'),
 			loadSfcWithLog('./src/components/dashboard/OverlaysSection.vue'),
 			loadSfcWithLog('./src/components/overlays/chat/ChatConfiguration.vue'),
-			loadSfcWithLog('./src/components/chat/ChatDashboard.vue'),
-			loadSfcWithLog('./src/components/chat/BotStatusCard.vue'),
-			loadSfcWithLog('./src/components/chat/BotActionsCard.vue'),
-			loadSfcWithLog('./src/components/chat/EventsOverview.vue')
+			loadSfcWithLog('./src/components/chat/ChatIndex.vue'),
+			loadSfcWithLog('./src/components/dashboard/FloatingCopyUrlButton.vue')
 		]);
 
 		bootLog('main:loadModule:all-ok');
@@ -108,14 +106,11 @@ async function bootstrapMainApp() {
 				? loadedChatConfiguration.default
 				: loadedChatConfiguration;
 
-		const chatDashboardComponent =
-			loadedChatDashboard && loadedChatDashboard.default ? loadedChatDashboard.default : loadedChatDashboard;
-		const botStatusCardComponent =
-			loadedBotStatusCard && loadedBotStatusCard.default ? loadedBotStatusCard.default : loadedBotStatusCard;
-		const botActionsCardComponent =
-			loadedBotActionsCard && loadedBotActionsCard.default ? loadedBotActionsCard.default : loadedBotActionsCard;
-		const eventsOverviewComponent =
-			loadedEventsOverview && loadedEventsOverview.default ? loadedEventsOverview.default : loadedEventsOverview;
+		const chatIndexComponent = loadedChatIndex && loadedChatIndex.default ? loadedChatIndex.default : loadedChatIndex;
+		const floatingCopyUrlButtonComponent =
+			loadedFloatingCopyUrlButton && loadedFloatingCopyUrlButton.default
+				? loadedFloatingCopyUrlButton.default
+				: loadedFloatingCopyUrlButton;
 
 		createLayerApp({
 			rootComponent,
@@ -123,10 +118,8 @@ async function bootstrapMainApp() {
 			credentialsGeneratorComponent,
 			overlaysSectionComponent,
 			chatConfigurationComponent,
-			chatDashboardComponent,
-			botStatusCardComponent,
-			botActionsCardComponent,
-			eventsOverviewComponent
+			chatIndexComponent,
+			floatingCopyUrlButtonComponent
 		});
 		bootLog('main:createLayerApp:ok');
 		hideAppLoading();

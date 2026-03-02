@@ -1,7 +1,7 @@
 <template>
   <main class="container py-4">
     <header class="mb-4 text-white d-flex justify-content-between align-items-center gap-2 flex-wrap">
-      <h1 class="h3 mb-1">Twitch BOT</h1>
+      <h1 class="h3 mb-1">Twitch BOT :: {{ username }}</h1>
       <div class="d-flex gap-2 flex-wrap">
         <button class="btn btn-outline-primary btn-sm" type="button" @click="handleCopyCurrentUrl">Copiar URL actual</button>
         <a
@@ -19,15 +19,12 @@
 
     <overlays-section></overlays-section>
 
-    <bot-status-card></bot-status-card>
-
-    <bot-actions-card></bot-actions-card>
-
-    <chat-dashboard></chat-dashboard>
+    <chat-index></chat-index>
 
     <test-alerts-panel></test-alerts-panel>
 
-    <events-overview></events-overview>
+    <floating-copy-url-button></floating-copy-url-button>
+
   </main>
 </template>
 
@@ -35,6 +32,33 @@
 export default {
   name: 'IndexPage',
   setup() {
+    const { computed, inject, onMounted, ref, watch } = Vue;
+    const globalServices = inject('globalServices', {});
+    const useOverlayAuth = globalServices.useOverlayAuth;
+    const overlayAuth = useOverlayAuth ? useOverlayAuth() : null;
+
+    const username = ref('');
+    const pageTitle = computed(() => username.value ? `Twitch BOT :: ${username.value}` : 'Twitch BOT');
+
+    watch(
+      pageTitle,
+      (nextTitle) => {
+        document.title = nextTitle;
+      },
+      { immediate: true }
+    );
+
+    onMounted(async () => {
+      if (!overlayAuth || typeof overlayAuth.getUsername !== 'function') {
+        return;
+      }
+
+      try {
+        username.value = await overlayAuth.getUsername();
+      } catch (error) {
+      }
+    });
+
     async function copyText(text) {
       try {
         await navigator.clipboard.writeText(text);
@@ -54,6 +78,7 @@ export default {
     }
 
     return {
+      username,
       handleCopyCurrentUrl
     };
   }

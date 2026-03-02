@@ -47,6 +47,10 @@ http://localhost:PORT/chat.html?auth=PAYLOAD_CIFRADO&chat_max=10&chat_size=36&ch
 - Followers: polling Helix (`channels/followers`)
 - Chat: recepción por IRC `message` y envío desde panel "Chat de Twitch (bot)"
 
+## Organización del panel
+
+- Todo lo relacionado con panel de chat/bot del dashboard está unificado en `client/src/components/chat/ChatIndex.vue`.
+
 ## Extender funcionalidades
 
 El composable está en `client/src/composables/useTwitchBot.js`.
