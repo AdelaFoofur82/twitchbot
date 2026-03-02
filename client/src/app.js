@@ -1,5 +1,3 @@
-import { createTestAlertsPanel } from './components/TestAlertsPanel.js';
-
 export function createLayerApp(options = {}) {
   const { createApp } = Vue;
   const {
@@ -9,14 +7,18 @@ export function createLayerApp(options = {}) {
     overlaysSectionComponent = null,
     chatConfigurationComponent = null,
     chatIndexComponent = null,
-    floatingCopyUrlButtonComponent = null
+    chatCommandsConfigComponent = null,
+    floatingCopyUrlButtonComponent = null,
+    testAlertsPanelComponent = null
   } = options;
 
   const app = createApp(rootComponent || {});
 
   app.provide('globalServices', globalServices);
 
-  app.component('test-alerts-panel', createTestAlertsPanel());
+  if (testAlertsPanelComponent) {
+    app.component('test-alerts-panel', testAlertsPanelComponent);
+  }
 
   if (credentialsGeneratorComponent) {
     app.component('credentials-generator', credentialsGeneratorComponent);
@@ -32,6 +34,10 @@ export function createLayerApp(options = {}) {
 
   if (chatIndexComponent) {
     app.component('chat-index', chatIndexComponent);
+  }
+
+  if (chatCommandsConfigComponent) {
+    app.component('chat-commands-config', chatCommandsConfigComponent);
   }
 
   if (floatingCopyUrlButtonComponent) {

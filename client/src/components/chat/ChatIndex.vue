@@ -92,6 +92,8 @@
 			</div>
 		</section>
 
+		<chat-commands-config></chat-commands-config>
+
 		<section class="row g-3">
 			<div class="col-12 col-lg-4">
 				<div class="card h-100 bg-dark border-light-subtle text-white">

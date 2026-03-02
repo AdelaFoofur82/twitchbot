@@ -82,14 +82,18 @@ async function bootstrapMainApp() {
 			loadedOverlaysSection,
 			loadedChatConfiguration,
 			loadedChatIndex,
-			loadedFloatingCopyUrlButton
+			loadedChatCommandsConfig,
+			loadedFloatingCopyUrlButton,
+			loadedTestAlertsPanel
 		] = await Promise.all([
 			loadSfcWithLog('./src/components/dashboard/Index.vue'),
 			loadSfcWithLog('./src/components/dashboard/CredentialsGenerator.vue'),
 			loadSfcWithLog('./src/components/dashboard/OverlaysSection.vue'),
 			loadSfcWithLog('./src/components/overlays/chat/ChatConfiguration.vue'),
 			loadSfcWithLog('./src/components/chat/ChatIndex.vue'),
-			loadSfcWithLog('./src/components/dashboard/FloatingCopyUrlButton.vue')
+			loadSfcWithLog('./src/components/chat/ChatCommandsConfig.vue'),
+			loadSfcWithLog('./src/components/dashboard/FloatingCopyUrlButton.vue'),
+			loadSfcWithLog('./src/components/TestAlertsPanel.vue')
 		]);
 
 		bootLog('main:loadModule:all-ok');
@@ -107,10 +111,16 @@ async function bootstrapMainApp() {
 				: loadedChatConfiguration;
 
 		const chatIndexComponent = loadedChatIndex && loadedChatIndex.default ? loadedChatIndex.default : loadedChatIndex;
+		const chatCommandsConfigComponent =
+			loadedChatCommandsConfig && loadedChatCommandsConfig.default
+				? loadedChatCommandsConfig.default
+				: loadedChatCommandsConfig;
 		const floatingCopyUrlButtonComponent =
 			loadedFloatingCopyUrlButton && loadedFloatingCopyUrlButton.default
 				? loadedFloatingCopyUrlButton.default
 				: loadedFloatingCopyUrlButton;
+		const testAlertsPanelComponent =
+			loadedTestAlertsPanel && loadedTestAlertsPanel.default ? loadedTestAlertsPanel.default : loadedTestAlertsPanel;
 
 		createLayerApp({
 			rootComponent,
@@ -119,7 +129,9 @@ async function bootstrapMainApp() {
 			overlaysSectionComponent,
 			chatConfigurationComponent,
 			chatIndexComponent,
-			floatingCopyUrlButtonComponent
+			chatCommandsConfigComponent,
+			floatingCopyUrlButtonComponent,
+			testAlertsPanelComponent
 		});
 		bootLog('main:createLayerApp:ok');
 		hideAppLoading();
